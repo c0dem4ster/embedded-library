@@ -8,8 +8,8 @@
 
 #include "gfx.h"
 
-void gfx_init(void (*set_pixel)(uint16_t x, uint16_t y, uint8_t c[3]),
-              void (*get_pixel)(uint16_t x, uint16_t y, uint8_t c[3]))
+void gfx_init(void (*set_pixel)(uint16_t, uint16_t, uint8_t*),
+              void (*get_pixel)(uint16_t, uint16_t, uint8_t*))
 {
     read_pixel = get_pixel;
     draw_pixel = set_pixel;
@@ -56,7 +56,7 @@ void draw_img(char* data, int16_t x, int16_t y, uint16_t width, uint16_t height,
         for (int xpos=MAX(x, 0); xpos<MIN(width+x, DISP_WIDTH); xpos++)
         {
             set_color((((data[0] - 33) << 2) | ((data[1] - 33) >> 4)), ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2)), ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33))));
-            if((ili_color != 0) || no_alpha)
+            if(((rgb_color[0] || rgb_color[1] || rgb_color[2]) != 0) || no_alpha)
                 draw_pixel(xpos, ypos, rgb_color);
             data += 4;
         }

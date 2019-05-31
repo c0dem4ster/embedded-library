@@ -15,8 +15,8 @@
 #include "../util/util.h"
 
 // initalize graphics library
-void gfx_init(void (*set_pixel)(uint16_t x, uint16_t y, uint8_t c[3]),
-              void (*get_pixel)(uint16_t x, uint16_t y, uint8_t c[3]))
+void gfx_init(void (*set_pixel)(uint16_t, uint16_t, uint8_t*),
+              void (*get_pixel)(uint16_t, uint16_t, uint8_t*));
 
 // get pixel color at specified coordinates
 void (*read_pixel)(uint16_t x, uint16_t y, uint8_t c[3]);
