@@ -12,13 +12,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../../main.h"
+#include "../util/util.h"
+
+// initalize graphics library
+void gfx_init(void (*set_pixel)(uint16_t x, uint16_t y, uint8_t c[3]),
+              void (*get_pixel)(uint16_t x, uint16_t y, uint8_t c[3]))
+
+// get pixel color at specified coordinates
+void (*read_pixel)(uint16_t x, uint16_t y, uint8_t c[3]);
+
+// set pixel color at specified coordinates
+void (*draw_pixel)(uint16_t x, uint16_t y, uint8_t c[3]);
 
 // fill framebuffer with color
 void fill_buffer();
-
-// set pixel at specified coordinates to color
-void draw_pixel(uint16_t x, uint16_t y);
 
 // draw a rectangle
 void draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
@@ -40,9 +47,6 @@ void set_color(uint8_t red, uint8_t green, uint8_t blue);
 
 // get display color at specified coordinate
 void get_color(uint16_t x, uint16_t y);
-
-// current selected color BGR565
-uint16_t ili_color;
 
 // current selected color RGB888
 uint8_t rgb_color[3];

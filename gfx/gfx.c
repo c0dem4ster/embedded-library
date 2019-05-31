@@ -8,40 +8,42 @@
 
 #include "gfx.h"
 
+void gfx_init(void (*set_pixel)(uint16_t x, uint16_t y, uint8_t c[3]),
+              void (*get_pixel)(uint16_t x, uint16_t y, uint8_t c[3]))
+{
+    read_pixel = get_pixel;
+    draw_pixel = set_pixel;
+}
+
 void fill_buffer()
 {
     for(int x=0; x<DISP_WIDTH; x++)
     {
         for(int y=0; y<DISP_HEIGHT; y++)
         {
-            draw_pixel(x, y);
+            draw_pixel(x, y, rgb_color);
         }
     }
-}
-
-void draw_pixel(uint16_t x, uint16_t y)
-{
-    framebuffer[y * DISP_WIDTH + x] = ili_color;
 }
 
 void draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
     for(int xpos=x; xpos<x+width; xpos++)
     {
-        draw_pixel(xpos, y);
-        draw_pixel(xpos, y+height-1);
+        draw_pixel(xpos, y, rgb_color);
+        draw_pixel(xpos, y+height-1, rgb_color);
     }
     for(int ypos=y; ypos<y+height; ypos++)
     {
-        draw_pixel(x, ypos);
-        draw_pixel(x+width-1, ypos);
+        draw_pixel(x, ypos, rgb_color);
+        draw_pixel(x+width-1, ypos, rgb_color);
     }
 }
 
 void draw_circle(uint16_t x, uint16_t y, uint16_t radius)
 {
     for(uint16_t angle=0; angle<360; angle++)
-        draw_pixel(sin(angle)*radius+x, cos(angle)*radius+y);
+        draw_pixel(sin(angle)*radius+x, cos(angle)*radius+y, rgb_color);
 }
 
 void draw_img(char* data, int16_t x, int16_t y, uint16_t width, uint16_t height, uint8_t no_alpha)
@@ -55,7 +57,7 @@ void draw_img(char* data, int16_t x, int16_t y, uint16_t width, uint16_t height,
         {
             set_color((((data[0] - 33) << 2) | ((data[1] - 33) >> 4)), ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2)), ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33))));
             if((ili_color != 0) || no_alpha)
-                draw_pixel(xpos, ypos);
+                draw_pixel(xpos, ypos, rgb_color);
             data += 4;
         }
         
@@ -71,9 +73,9 @@ void fill_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, float al
     {
         for(int ypos=y; ypos<y+height; ypos++)
         {
-            get_color(xpos, ypos);
+            read_pixel(xpos, ypos, rgb_color);
             set_color(alpha*fill_color[0]+(1-alpha)*rgb_color[0], alpha*fill_color[1]+(1-alpha)*rgb_color[1], alpha*fill_color[2]+(1-alpha)*rgb_color[2]);
-            draw_pixel(xpos, ypos);
+            draw_pixel(xpos, ypos, rgb_color);
         }
     }
     set_color(fill_color[0], fill_color[1], fill_color[2]);
@@ -86,9 +88,9 @@ void fill_circle(uint16_t x, uint16_t y, uint16_t radius, float alpha)
     {
         for(uint16_t ypos=y-sqrt(radius*radius-(x-xpos)*(x-xpos)); ypos<y+sqrt(radius*radius-(x-xpos)*(x-xpos)); ypos++)
         {
-            get_color(xpos, ypos);
+            read_pixel(xpos, ypos, rgb_color);
             set_color(alpha*fill_color[0]+(1-alpha)*rgb_color[0], alpha*fill_color[1]+(1-alpha)*rgb_color[1], alpha*fill_color[2]+(1-alpha)*rgb_color[2]);
-            draw_pixel(xpos, ypos);
+            draw_pixel(xpos, ypos, rgb_color);
         }
     }
     set_color(fill_color[0], fill_color[1], fill_color[2]);
@@ -96,14 +98,7 @@ void fill_circle(uint16_t x, uint16_t y, uint16_t radius, float alpha)
 
 void set_color(uint8_t red, uint8_t green, uint8_t blue)
 {
-    ili_color = to_bgr(red, green, blue);
     rgb_color[0] = red;
     rgb_color[1] = green;
     rgb_color[2] = blue;
-}
-
-void get_color(uint16_t x, uint16_t y)
-{
-    ili_color = framebuffer[y * DISP_WIDTH + x];
-    from_bgr(ili_color, rgb_color);
 }
